@@ -26,7 +26,7 @@ var P = {
 
 		P.setState("idle");
 
-		$(document).keydown(P.input);
+		$(document).keyup(P.input);
 		P.breath = setInterval(function () {
 			if (P.MEM_DIVE_BREACH == true && P.MEM_SURFACE_BREACH == false) {
 				P.drain(10)
