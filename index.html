@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ld29 - under the surfice</title>
+	<script src="jquery-2.1.0.min.js"></script>
+	<script src="game.js"></script>
+	<script src="player.js"></script>
+	<style>
+
+		body {
+			width:100%;
+			height:100%;
+			margin:0px;
+		}
+	</style>
+</head>
+<body>
+	<canvas style="margin-right:auto;margin-left:auto;display:block;" id="game" width="800" height="600"></canvas>
+<script>
+$(function () {
+	var canvas = document.getElementById('game');
+	ctx = canvas.getContext('2d');
+	var imageObj = new Image();
+
+	imageObj.onload = function () {
+		ctx.drawImage(imageObj, 0, 0);
+		//game.init(ctx, imageObj);
+		G.init(ctx, imageObj);
+	};
+	imageObj.src = 'img/layer_01.png';
+
+
+});
+
+
+/**
+ * GAME
+ */
+var game = {
+
+	bImg: null,
+	state: null,
+	interval: null,
+	ctx: null,
+	bubbles: null,
+	fish: null,
+	intro_y: 0,
+	deep: 0,
+	tick: 0,
+	vel: 1,
+
+	init: function (ctx, bImg) {
+		console.log('game.init');
+		game.ctx = ctx;
+		game.bImg = bImg;
+		// key bindings
+		$(document).keydown(function (e) {
+			if (e.which == 32) {
+
+				switch (game.state) {
+					case null:
+						game.start();
+						break;
+					case 1:
+						game.stop();
+						break;
+					case 2:
+						game.start();
+						break;
+				}
+			}
+		});
+
+		game.bubbles = [];
+		game.fish = [];
+
+		P.init(G.ctx, G.gY);
+	},
+
+	start: function () {
+		console.log('game.start');
+		game.setState(3);
+		//player.init(game.ctx);
+		game.interval = setInterval(game.update, Math.floor(1000 / 60));
+	},
+
+	stop: function () {
+
+		console.log('game.stop');
+		game.setState(2);
+		clearInterval(game.interval);
+	},
+
+	createBubble: function () {
+		var bC = Math.floor((Math.random() * 3) + 1);
+
+		for (var bI = 0; bI <= bC; bI++) {
+			var bX, bR;
+			bx = Math.floor((Math.random() * 800) + 1);
+			bR = Math.floor((Math.random() * 10) + 1);
+			game.bubbles.push(new bubble(game.ctx, bx, 650, bR));
+		}
+	},
+
+	createFish: function () {
+		fx = Math.floor((Math.random() * 800) + 1);
+		game.fish.push(new fish(game.ctx, fx, 650));
+		console.log(game.fish);
+	},
+
+	setVel: function (value) {
+		game.vel = value;
+	},
+
+	update: function () {
+		//console.log('game.update');
+		game.tick += 1;
+		switch (game.state) {
+			case 1: // player
+				game.setVel(1);
+				if (P.y <= 200 && P.state != "diving") {
+					game.setState("emerging");
+				}
+				if (game.tick % 100 == 0) {
+					game.createBubble();
+					game.createFish();
+				}
+
+				if (game.tick % 500 == 0) {
+					//game.createFish();
+				}
+
+				for (var i = 0; i < game.bubbles.length; i++) {
+					var cBubble = game.bubbles[i];
+					cBubble.update();
+				}
+
+				for (var fI = 0; fI < game.fish.length; fI++) {
+					var cFish = game.fish[fI];
+					cFish.update();
+				}
+
+				game.draw();
+				P.update();
+
+				game.cleanup();
+				break;
+			case 3:	// intro
+				game.setVel(7);
+				if (game.intro_y > -600) {
+					game.intro_y -= game.vel;
+				} else {
+					game.setState(1);
+					P.dive(14, 1000);
+					P.moveTo(P.dX, P.dY + 200);
+				}
+				game.draw();
+				game.ctx.drawImage(game.bImg, 0, game.intro_y);
+				P.draw();
+				break;
+			case "emerging":
+				if (game.intro_y < 0) {
+					game.intro_y += game.vel;
+				} else {
+					game.setState("risen");
+					P.moveTo(P.dX, 500);
+				}
+				game.draw();
+				game.ctx.drawImage(game.bImg, 0, game.intro_y);
+				P.draw();
+				break;
+			case "risen":
+				game.draw();
+				game.ctx.drawImage(game.bImg, 0, game.intro_y);
+				P.draw();
+				game.setState(2);
+				break;
+		}
+
+	},
+
+	cleanup: function () {
+		for (var i = 0; i < game.bubbles.length; i++) {
+			var cBubble = game.bubbles[i];
+			if (cBubble.y < 0) {
+				game.bubbles.splice(i, 1);
+			}
+		}
+	},
+
+	draw: function () {
+		//console.log('game.draw');
+		game.ctx.clearRect(0, 0, 800, 600);
+		var my_gradient = game.ctx.createLinearGradient(0, 0, 0, 600);
+		my_gradient.addColorStop(0, "rgb(202, 228, 241)");
+		my_gradient.addColorStop(1, "rgb(0, 87, 138)");
+		game.ctx.fillStyle = my_gradient;
+		game.ctx.fillRect(0, 0, 800, 600);
+
+		for (var i = 0; i < game.bubbles.length; i++) {
+			game.bubbles[i].draw();
+		}
+
+		for (var fI = 0; fI < game.fish.length; fI++) {
+			var cFish = game.fish[fI];
+			cFish.draw();
+		}
+
+		// print player y
+		game.ctx.fillStyle = 'black';
+		game.ctx.font = "bold 16px Arial";
+		game.ctx.fillText(P.x + "/" + P.y + " " + game.state, 10, 25);
+	},
+
+	setState: function (to) {
+		console.log(to, 'game.setState');
+		game.state = to;
+	}
+};
+
+
+</script>
+
+</body>
+</html>
