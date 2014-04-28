@@ -10,6 +10,7 @@ var P = {
 	MEM_SURFACE_BREACH: false,
 	MEM_PRESSED_DIVE: false,
 	MEM_PRESSED_SURFACE: false,
+	MEM_INPUT_INITED: false,
 	MEM_HOW_DEEP: 0,
 
 	air : null,
@@ -26,7 +27,7 @@ var P = {
 
 		P.setState("idle");
 
-		$(document).keyup(P.input);
+
 		P.breath = setInterval(function () {
 			if (P.MEM_DIVE_BREACH == true && P.MEM_SURFACE_BREACH == false) {
 				P.drain(10)
@@ -39,6 +40,10 @@ var P = {
 		if (P.air <= 0) {
 			P.die();
 		}
+	},
+
+	initInput : function () {
+		$(document).keyup(P.input);
 	},
 
 	input: function (e) {
@@ -152,6 +157,11 @@ var P = {
 		if (P.state == 'rising' && P.MEM_SURFACE_BREACH == false) {
 			P.surface();
 		}
+
+		if (P.MEM_DIVE_BREACH && P.MEM_INPUT_INITED == false) {
+			P.initInput();
+		}
+
 	},
 
 	draw: function (dX, dY) {

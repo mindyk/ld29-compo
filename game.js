@@ -39,7 +39,7 @@ var G = {
 		G.state("init");
 
 		$(document).keydown(G.input);
-
+		P.init(ctx, G.gY);
 		G.draw();
 	},
 
@@ -55,7 +55,6 @@ var G = {
 	start: function () {
 		//console.log('G.start');
 		G.state("start");
-		P.init(ctx, G.gY);
 		G.interval = setInterval(G.update, Math.floor(1000 / 60));
 	},
 
