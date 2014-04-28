@@ -27,7 +27,6 @@ var P = {
 
 		P.setState("idle");
 
-
 		P.breath = setInterval(function () {
 			if (P.MEM_DIVE_BREACH == true && P.MEM_SURFACE_BREACH == false) {
 				P.drain(10)

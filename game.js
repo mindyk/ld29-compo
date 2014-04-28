@@ -24,6 +24,13 @@ var G = {
 
 	entities: [],
 
+	sR : 202,
+	sG : 228,
+	sB : 241,
+	eR : 0,
+	eG : 87,
+	eB : 138,
+
 	init: function (ctx, bgImg) {
 		//console.log('G.init');
 		G.ctx = ctx;
@@ -128,9 +135,53 @@ var G = {
 			G.ctx.drawImage(G.bgImg, 0, dY);
 		}
 
+
+
+		if (Math.floor(G.gY) % 10 == 0) {
+			if (G.goingDown() ) {
+				if (G.sR >= 10) {
+					G.sR -= 1;
+				}
+				if (G.sG >= 97) {
+					G.sG -= 1;
+				}
+				if (G.sB >= 148) {
+					G.sB -= 1;
+				}
+
+				if (G.eG >= 10) {
+					G.eG -= 1;
+				}
+
+				if (G.eB >= 10) {
+					G.sB -= 1;
+				}
+			} else {
+				if (G.sR <= 192) {
+					G.sR += 1;
+				}
+
+				if (G.sG <= 218) {
+					G.sG += 1;
+				}
+
+				if (G.sB <= 231) {
+					G.sB += 1;
+				}
+
+				if (G.eG <= 77) {
+					G.eG += 1;
+				}
+
+				if (G.eB <= 128) {
+					G.sB += 1;
+				}
+			}
+		}
+
 		var my_gradient = G.ctx.createLinearGradient(0, 0, 0, G.h);
-		my_gradient.addColorStop(0, "rgb(202, 228, 241)");
-		my_gradient.addColorStop(1, "rgb(0, 87, 138)");
+		my_gradient.addColorStop(0, "rgb(" + G.sR + ", " + G.sG + ", " + G.sB + ")");
+		my_gradient.addColorStop(1, "rgb(" + G.eR + ", " + G.eG + ", " + G.eB + ")");
 		G.ctx.fillStyle = my_gradient;
 
 		if (G.gY < G.h) {
@@ -170,7 +221,7 @@ var G = {
 	},
 
 	goingDown: function () {
-		return this.vel > 0;
+		return G.vel > 0;
 	},
 
 	update: function () {
