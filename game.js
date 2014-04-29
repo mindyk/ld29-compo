@@ -24,12 +24,12 @@ var G = {
 
 	entities: [],
 
-	sR : 202,
-	sG : 228,
-	sB : 241,
-	eR : 0,
-	eG : 87,
-	eB : 138,
+	sR: 202,
+	sG: 228,
+	sB: 241,
+	eR: 0,
+	eG: 87,
+	eB: 138,
 
 	init: function (ctx, bgImg) {
 		//console.log('G.init');
@@ -69,17 +69,17 @@ var G = {
 		G.drawBg();
 
 		/**
-		G.ctx.fillStyle = 'black';
-		G.ctx.font = "bold 16px Arial";
-		G.ctx.fillText(G.gY, 10, 25);
+		 G.ctx.fillStyle = 'black';
+		 G.ctx.font = "bold 16px Arial";
+		 G.ctx.fillText(G.gY, 10, 25);
 		 **/
 
 		if (P.MEM_DIVE_BREACH == true) {
 			/*
-			G.ctx.fillStyle = 'black';
-			G.ctx.font = "bold 16px Arial";
-			G.ctx.fillText("DIVE BREACHED", 10, 50);
-			*/
+			 G.ctx.fillStyle = 'black';
+			 G.ctx.font = "bold 16px Arial";
+			 G.ctx.fillText("DIVE BREACHED", 10, 50);
+			 */
 
 			G.ctx.fillStyle = 'black';
 			G.ctx.font = "bold 16px Arial";
@@ -103,9 +103,9 @@ var G = {
 
 
 		/**
-		G.ctx.fillStyle = 'black';
-		G.ctx.font = "bold 16px Arial";
-		G.ctx.fillText(P.air, 100, 25);
+		 G.ctx.fillStyle = 'black';
+		 G.ctx.font = "bold 16px Arial";
+		 G.ctx.fillText(P.air, 100, 25);
 		 **/
 
 		for (var mI = 0; mI <= G.entities.length - 1; mI++) {
@@ -119,12 +119,33 @@ var G = {
 		}
 	},
 
+	"_getRgbByDepth": function (depth) {
+
+		var X1 = 0, X2 = 1000,
+			rY1 = 202 , rY2 = 0, rM = (rY2 - rY1) / (X2 - X1),
+			gY1 = 228, gY2 = 87, gM = (gY2 - gY1) / (X2 - X1) ,
+			bY1 = 241, bY2 = 138, bM = (bY2 - bY1) / (X2 - X1),
+			rgb;
+
+
+		if (depth >= X2) {
+			return {r: rY2, g: gY2, b: bY2};
+		}
+
+		rgb = {
+			r: Math.floor(rM * (depth - X1) + rY1),
+			g: Math.floor(gM * (depth - X1) + gY1),
+			b: Math.floor(bM * (depth - X1) + bY1)
+		};
+
+		return rgb;
+	},
+
 	drawBg: function () {
 		//console.log('G.drawBg');
 		var dX = 0, dY = 0;
 
 		G.ctx.clearRect(0, 0, G.w, G.h);
-
 
 
 		if (G.gY > 0) {
@@ -136,51 +157,10 @@ var G = {
 		}
 
 
+		var rgb = G._getRgbByDepth(G.gY),
+			my_gradient = G.ctx.createLinearGradient(0, 0, 0, G.h);
 
-		if (Math.floor(G.gY) % 10 == 0) {
-			if (G.goingDown() ) {
-				if (G.sR >= 10) {
-					G.sR -= 1;
-				}
-				if (G.sG >= 97) {
-					G.sG -= 1;
-				}
-				if (G.sB >= 148) {
-					G.sB -= 1;
-				}
-
-				if (G.eG >= 10) {
-					G.eG -= 1;
-				}
-
-				if (G.eB >= 10) {
-					G.sB -= 1;
-				}
-			} else {
-				if (G.sR <= 192) {
-					G.sR += 1;
-				}
-
-				if (G.sG <= 218) {
-					G.sG += 1;
-				}
-
-				if (G.sB <= 231) {
-					G.sB += 1;
-				}
-
-				if (G.eG <= 77) {
-					G.eG += 1;
-				}
-
-				if (G.eB <= 128) {
-					G.sB += 1;
-				}
-			}
-		}
-
-		var my_gradient = G.ctx.createLinearGradient(0, 0, 0, G.h);
-		my_gradient.addColorStop(0, "rgb(" + G.sR + ", " + G.sG + ", " + G.sB + ")");
+		my_gradient.addColorStop(0, "rgb(" + rgb.r + ", " + rgb.g + ", " + rgb.b + ")");
 		my_gradient.addColorStop(1, "rgb(" + G.eR + ", " + G.eG + ", " + G.eB + ")");
 		G.ctx.fillStyle = my_gradient;
 
