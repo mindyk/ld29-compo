@@ -12,10 +12,12 @@ var G = {
 	gY: null,
 
 	interval: null,
+	ivalMenu: null,
 
 	vel: null,
 	_state: null,
 	tick: 0,
+	tickMenu: 0,
 
 	VEL_IDLE: -0.5,
 	VEl_DIVE: 7,
@@ -30,6 +32,8 @@ var G = {
 	eR: 0,
 	eG: 87,
 	eB: 138,
+
+	blinkIncoming : false,
 
 	init: function (ctx, bgImg) {
 		//console.log('G.init');
@@ -47,7 +51,8 @@ var G = {
 
 		$(document).keydown(G.input);
 		P.init(ctx, G.gY);
-		G.draw();
+
+		G.ivalMenu = setInterval(G.updateMenu, Math.floor(1000 / 60));
 	},
 
 	state: function (value) {
@@ -62,6 +67,7 @@ var G = {
 	start: function () {
 		//console.log('G.start');
 		G.state("start");
+		clearInterval(G.ivalMenu);
 		G.interval = setInterval(G.update, Math.floor(1000 / 60));
 	},
 
@@ -112,11 +118,27 @@ var G = {
 			G.entities[mI].draw();
 		}
 
+		var p = G._getPlayerPositionByGameState();
 		if (P.MEM_SURFACE_BREACH) {
-			P.draw(350, G.h - G.gY);
+			P.draw(p.x, G.h - G.gY);
 		} else {
-			P.draw(350, 100);
+			P.draw(p.x, p.y);
 		}
+	},
+
+	"_getPlayerPositionByGameState": function () {
+		var pos = {x: 350, y: 100};
+
+		switch (G.state()) {
+			case 'init':
+				pos.x = 170;
+				pos.y = 100;
+				break;
+			case 'start':
+				break;
+		}
+
+		return pos;
 	},
 
 	"_getRgbByDepth": function (depth) {
@@ -297,6 +319,35 @@ var G = {
 				G.entities.splice(i, 1);
 			}
 		}
+	},
+
+	updateMenu: function () {
+		G.tickMenu += 1;
+
+		// freaking blink, much blink, wow
+		if (G.tickMenu % 100 == 0 && G.blinkIncoming == false) {
+			G.blinkIncoming = true;
+			var blinkInMs = Math.floor((Math.random() * 1000) + 100);
+			setTimeout(function () {
+
+				P.MEM_BLINK = true;
+				//var blinkForMs = Math.floor((Math.random() * 800) + 200)
+				setTimeout(function () {
+				
+					P.MEM_BLINK = false;
+					G.blinkIncoming = false;
+				}, 100);
+			}, blinkInMs);
+		}
+		G.drawMenu();
+	},
+
+	drawMenu: function () {
+		G.ctx.clearRect(0, 0, G.w, G.h);
+		G.ctx.drawImage(G.bgImg, 0, 0);
+
+		pPos = G._getPlayerPositionByGameState();
+		P.drawMenu(pPos.x, pPos.y);
 	}
 };
 

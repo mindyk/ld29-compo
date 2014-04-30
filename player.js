@@ -12,6 +12,7 @@ var P = {
 	MEM_PRESSED_SURFACE: false,
 	MEM_INPUT_INITED: false,
 	MEM_HOW_DEEP: 0,
+	MEM_BLINK : false,
 
 	air : null,
 	breath: null,
@@ -171,6 +172,27 @@ var P = {
 			P.ctx.fillRect(dX, dY, 100, 30);
 		} else {
 			P.ctx.fillRect(dX, dY, 30, 100);
+
+		}
+	},
+
+	drawMenu: function (dX, dY) {
+		P.dX = dX;
+		P.dY = dY;
+		P.ctx.fillStyle = "rgb(0, 0, 0)";
+		P.ctx.fillRect(dX, dY, 30, 100);
+
+		if (P.MEM_BLINK == false) {
+			P.M.eyes();
+		}
+	},
+
+	M : {
+
+		eyes : function () {
+			P.ctx.fillStyle = "rgb(255, 255, 255)";
+			P.ctx.fillRect(P.dX + 20, P.dY + 10, 5, 5);
+			P.ctx.fillRect(P.dX + 10, P.dY + 10, 5, 5);
 		}
 	},
 
