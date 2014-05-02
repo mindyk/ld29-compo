@@ -33,7 +33,7 @@ var G = {
 	eG: 87,
 	eB: 138,
 
-	blinkIncoming : false,
+	blinkIncoming: false,
 
 	init: function (ctx, bgImg) {
 		//console.log('G.init');
@@ -53,6 +53,9 @@ var G = {
 		P.init(ctx, G.gY);
 
 		G.ivalMenu = setInterval(G.updateMenu, Math.floor(1000 / 60));
+		G.entities.push(new seagull(ctx));
+		G.entities.push(new seagull(ctx));
+		G.entities.push(new seagull(ctx));
 	},
 
 	state: function (value) {
@@ -68,6 +71,7 @@ var G = {
 		//console.log('G.start');
 		G.state("start");
 		clearInterval(G.ivalMenu);
+		G.entities = [];
 		G.interval = setInterval(G.update, Math.floor(1000 / 60));
 	},
 
@@ -143,7 +147,7 @@ var G = {
 
 	"_getRgbByDepth": function (depth) {
 
-		var X1 = 0, X2 = 1000,
+		var X1 = 0, X2 = 2000,
 			rY1 = 202 , rY2 = 0, rM = (rY2 - rY1) / (X2 - X1),
 			gY1 = 228, gY2 = 87, gM = (gY2 - gY1) / (X2 - X1) ,
 			bY1 = 241, bY2 = 138, bM = (bY2 - bY1) / (X2 - X1),
@@ -333,12 +337,16 @@ var G = {
 				P.MEM_BLINK = true;
 				//var blinkForMs = Math.floor((Math.random() * 800) + 200)
 				setTimeout(function () {
-				
+
 					P.MEM_BLINK = false;
 					G.blinkIncoming = false;
 				}, 100);
 			}, blinkInMs);
 		}
+		for (var mI = 0; mI <= G.entities.length - 1; mI++) {
+			G.entities[mI].update();
+		}
+
 		G.drawMenu();
 	},
 
@@ -348,93 +356,150 @@ var G = {
 
 		pPos = G._getPlayerPositionByGameState();
 		P.drawMenu(pPos.x, pPos.y);
+
+		for (var mI = 0; mI <= G.entities.length - 1; mI++) {
+			G.entities[mI].draw();
+		}
 	}
 };
 
 var fish = function (ctx, x, y) {
-	this.ctx = ctx;
-	this.x = x;
-	this.y = y;
-	this._draw = false;
-	this.align = "left";
-	//console.log(y, 'fish');
+		this.ctx = ctx;
+		this.x = x;
+		this.y = y;
+		this._draw = false;
+		this.align = "left";
+		//console.log(y, 'fish');
 
-	this.draw = function () {
-		if (this._draw == false) {
-			return;
-		}
-		var y = this.y - G.gY;
-
-		// body
-		this.ctx.fillStyle = "rgb(100, 100, 100)";
-		this.ctx.fillRect(this.x, y, 30, 20);
-		// tail
-		this.ctx.fillStyle = "rgb(100, 100, 100)";
-		this.ctx.beginPath();
-		this.ctx.moveTo(this.x + 30, y + 10);
-		this.ctx.lineTo(this.x + 40, y); // /
-		this.ctx.lineTo(this.x + 40, y + 20); // |
-		this.ctx.lineTo(this.x + 30, y + 10); // \
-		//this.ctx.stroke();
-		this.ctx.fill();
-		this.ctx.closePath();
-
-
-		// eye
-		this.ctx.beginPath();
-		this.ctx.strokeStyle = "rgb(255, 255, 255)";
-		this.ctx.arc(this.x + 10, y + 10, 5, 0, 2 * Math.PI, false);
-		this.ctx.closePath();
-		this.ctx.stroke();
-	};
-
-	this.update = function () {
-		this._draw = (this.y < G.gY + G.h && this.y > G.gY);
-
-		if (this.align == "left") {
-			if (this.x > 0) {
-				this.x -= 1;
-			} else {
-				this.align = "right";
+		this.draw = function () {
+			if (this._draw == false) {
+				return;
 			}
-		}
+			var y = this.y - G.gY;
 
-		if (this.align == "right") {
-			if (this.x < G.w) {
-				this.x += 1;
-			} else {
-				this.align = "left";
+			// body
+			this.ctx.fillStyle = "rgb(100, 100, 100)";
+			this.ctx.fillRect(this.x, y, 30, 20);
+			// tail
+			this.ctx.fillStyle = "rgb(100, 100, 100)";
+			this.ctx.beginPath();
+			this.ctx.moveTo(this.x + 30, y + 10);
+			this.ctx.lineTo(this.x + 40, y); // /
+			this.ctx.lineTo(this.x + 40, y + 20); // |
+			this.ctx.lineTo(this.x + 30, y + 10); // \
+			//this.ctx.stroke();
+			this.ctx.fill();
+			this.ctx.closePath();
+
+
+			// eye
+			this.ctx.beginPath();
+			this.ctx.strokeStyle = "rgb(255, 255, 255)";
+			this.ctx.arc(this.x + 10, y + 10, 5, 0, 2 * Math.PI, false);
+			this.ctx.closePath();
+			this.ctx.stroke();
+		};
+
+		this.update = function () {
+			this._draw = (this.y < G.gY + G.h && this.y > G.gY);
+
+			if (this.align == "left") {
+				if (this.x > 0) {
+					this.x -= 1;
+				} else {
+					this.align = "right";
+				}
 			}
+
+			if (this.align == "right") {
+				if (this.x < G.w) {
+					this.x += 1;
+				} else {
+					this.align = "left";
+				}
+			}
+		};
+
+
+	},
+
+	bubble = function (ctx, x, y, r) {
+		this.ctx = ctx;
+		this.x = x;
+		this.y = y;
+		this.r = r;
+		this._draw = false;
+		this.vel = Math.floor((Math.random() * 3) + 1);
+
+
+		this.draw = function () {
+
+			if (this._draw == false) {
+				return;
+			}
+			var y = this.y - G.gY;
+			this.ctx.beginPath();
+			this.ctx.strokeStyle = "rgb(255, 255, 255)";
+			this.ctx.arc(this.x, y, this.r, 0, 2 * Math.PI, false)
+			this.ctx.stroke();
+		};
+
+		this.update = function (v) {
+			this._draw = (this.y < G.gY + G.h && this.y > G.gY);
+			this.y -= this.vel;
 		}
+
+	},
+
+	seagull = function (ctx) {
+		this.ctx = ctx;
+		this.x = Math.floor(Math.random() * (550 - 200 + 1)) + 200;
+		this.y = Math.floor(Math.random() * (200 - 30 + 1)) + 30;
+
+		this.w = 15;
+		this.h = 5;
+		this.up = true;
+		this.pWingLeft = {x: this.x - this.w, y: this.y - this.h};
+
+		this.anim = 0;
+
+		this.draw = function () {
+			var start = {x: this.x, y: this.y},
+				end = {x: this.x - this.w, y: this.y - this.h},
+				end2 = {x: this.x + this.w, y: this.y};
+
+			/*
+			 this.ctx.fillStyle = "rgb(255, 0, 0)";
+			 this.ctx.fillRect(start.x, start.y, 1, 1);
+			 this.ctx.fillRect(end.x, end.y, 1, 1);
+			 this.ctx.fillRect(end2.x, end2.y, 1, 1);
+			 */
+			this.ctx.fillStyle = "rgb(0, 0, 0)";
+			this.ctx.beginPath();
+			this.ctx.moveTo(start.x, start.y);
+			this.ctx.bezierCurveTo(start.x, start.y - this.h, end.x, end.y - this.h, end.x, this.pWingLeft.y);
+			this.ctx.moveTo(start.x, start.y);
+			this.ctx.bezierCurveTo(start.x, start.y - this.h, end2.x, end2.y - this.h, end2.x, this.pWingLeft.y);
+			this.ctx.stroke();
+		};
+
+
+		this.update = function () {
+			if (this.up) {
+				if (this.pWingLeft.y >= this.y - (this.h + 5)) {
+					this.pWingLeft.y -= 1;
+				} else {
+					this.up = false;
+				}
+
+			} else {
+				if (this.pWingLeft.y <= this.y) {
+					this.pWingLeft.y += 1;
+				} else {
+					this.up = true;
+				}
+			}
+		};
+
+
 	};
-
-
-};
-
-var bubble = function (ctx, x, y, r) {
-	this.ctx = ctx;
-	this.x = x;
-	this.y = y;
-	this.r = r;
-	this._draw = false;
-	this.vel = Math.floor((Math.random() * 3) + 1);
-
-
-	this.draw = function () {
-
-		if (this._draw == false) {
-			return;
-		}
-		var y = this.y - G.gY;
-		this.ctx.beginPath();
-		this.ctx.strokeStyle = "rgb(255, 255, 255)";
-		this.ctx.arc(this.x, y, this.r, 0, 2 * Math.PI, false)
-		this.ctx.stroke();
-	};
-
-	this.update = function (v) {
-		this._draw = (this.y < G.gY + G.h && this.y > G.gY);
-		this.y -= this.vel;
-	}
-
-};
