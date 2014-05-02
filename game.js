@@ -34,6 +34,7 @@ var G = {
 	eB: 138,
 
 	blinkIncoming: false,
+	MEM_SPAWN_DIVE_IN: false,
 
 	init: function (ctx, bgImg) {
 		//console.log('G.init');
@@ -78,11 +79,13 @@ var G = {
 	draw: function () {
 		G.drawBg();
 
-		/**
+
 		 G.ctx.fillStyle = 'black';
 		 G.ctx.font = "bold 16px Arial";
 		 G.ctx.fillText(G.gY, 10, 25);
-		 **/
+		G.ctx.fillStyle = 'black';
+		G.ctx.font = "bold 16px Arial";
+		G.ctx.fillText(P.MEM_HOW_DEEP, 10, 50);
 
 		if (P.MEM_DIVE_BREACH == true) {
 			/*
@@ -264,6 +267,15 @@ var G = {
 			}
 		}
 
+		if (G.gY >= 400 && G.gY <= 600 && (G.gY + P.h +1 > P.MEM_HOW_DEEP)) {
+				var bC = Math.floor((Math.random() * 10) + 1);
+				for (var iB = 0; iB <= bC ; iB++) {
+					var bR = Math.floor((Math.random() * 10) + 1);
+					var bX = Math.floor((Math.random() * 40) + - 10);
+					G.entities.push(new bubble(G.ctx, P.dX + bX, G.gY + P.dY + P.h, bR));
+				}
+		}
+
 		P.update();
 
 		for (var mI = 0; mI <= G.entities.length - 1; mI++) {
@@ -423,14 +435,18 @@ var fish = function (ctx, x, y) {
 
 	},
 
-	bubble = function (ctx, x, y, r) {
+	bubble = function (ctx, x, y, r, track) {
 		this.ctx = ctx;
 		this.x = x;
 		this.y = y;
 		this.r = r;
+		this.track = track || true;
 		this._draw = false;
 		this.vel = Math.floor((Math.random() * 3) + 1);
 
+		if (track) {
+			console.log(this);
+		}
 
 		this.draw = function () {
 
@@ -439,14 +455,26 @@ var fish = function (ctx, x, y) {
 			}
 			var y = this.y - G.gY;
 			this.ctx.beginPath();
+
 			this.ctx.strokeStyle = "rgb(255, 255, 255)";
+			if (this.track) {
+				//this.ctx.strokeStyle = "rgb(255, 0, 0)";
+			}
 			this.ctx.arc(this.x, y, this.r, 0, 2 * Math.PI, false)
 			this.ctx.stroke();
+
+			if (this.track && G.tick % 100 == 0) {
+				//console.log({x:this.x, y:this.y});
+			}
 		};
 
 		this.update = function (v) {
+
 			this._draw = (this.y < G.gY + G.h && this.y > G.gY);
 			this.y -= this.vel;
+			if (this.track && G.tick % 100 == 0) {
+				//console.log([this._draw, this.y], 'bubble.update');
+			}
 		}
 
 	},

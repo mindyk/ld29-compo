@@ -2,6 +2,7 @@ var P = {
 	ctx : null,
 	dX: 350,
 	dY: 150,
+	h: 100,
 
 	gY : null,
 
@@ -166,6 +167,7 @@ var P = {
 
 	draw: function (dX, dY) {
 		P.dY = dY;
+		P.dX = dX;
 		//console.log('player.draw');
 		P.ctx.fillStyle = "rgb(0, 0, 0)";
 		if (P.state == 'dead') {
