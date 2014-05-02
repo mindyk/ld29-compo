@@ -82,14 +82,15 @@ var G = {
 	draw: function () {
 		G.drawBg();
 
-
+		/*
 		 G.ctx.fillStyle = 'black';
 		 G.ctx.font = "bold 16px Arial";
 		 G.ctx.fillText(G.gY, 10, 25);
 		G.ctx.fillStyle = 'black';
 		G.ctx.font = "bold 16px Arial";
 		G.ctx.fillText(P.MEM_HOW_DEEP, 10, 50);
-
+		*/
+		
 		if (P.MEM_DIVE_BREACH == true) {
 			/*
 			 G.ctx.fillStyle = 'black';
@@ -467,7 +468,7 @@ var fish = function (ctx, x, y) {
 		this.vel = Math.floor((Math.random() * 3) + 1);
 
 		if (track) {
-			console.log(this);
+			//console.log(this);
 		}
 
 		this.draw = function () {
