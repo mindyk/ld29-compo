@@ -25,6 +25,7 @@ var G = {
 	VEL_PAUSE: 0,
 
 	entities: [],
+	entitiesFront : [],
 
 	sR: 202,
 	sG: 228,
@@ -35,6 +36,8 @@ var G = {
 
 	blinkIncoming: false,
 	MEM_SPAWN_DIVE_IN: false,
+	MEM_SPLASH_BUBBLE_COUNT : 0,
+	MEM_BUBBLE_COUNT: 0,
 
 	init: function (ctx, bgImg) {
 		//console.log('G.init');
@@ -130,6 +133,10 @@ var G = {
 			P.draw(p.x, G.h - G.gY);
 		} else {
 			P.draw(p.x, p.y);
+		}
+
+		for (var mI = 0; mI <= G.entitiesFront.length - 1; mI++) {
+			G.entitiesFront[mI].draw();
 		}
 	},
 
@@ -260,19 +267,30 @@ var G = {
 			}
 
 			if (G.tick % 100 == 0) {
+				G.MEM_BUBBLE_COUNT += 1;
 				var bX, bR;
 				bx = Math.floor((Math.random() * 800) + 1);
 				bR = Math.floor((Math.random() * 10) + 1);
-				G.entities.push(new bubble(G.ctx, bx, G.gY + G.h, bR));
+				if (G.MEM_BUBBLE_COUNT % 2) {
+					G.entities.push(new bubble(G.ctx, bx, G.gY + G.h, bR));
+				} else {
+					G.entitiesFront.push(new bubble(G.ctx, bx, G.gY + G.h, bR));
+				}
 			}
 		}
 
 		if (G.gY >= 400 && G.gY <= 600 && (G.gY + P.h +1 > P.MEM_HOW_DEEP)) {
+
 				var bC = Math.floor((Math.random() * 10) + 1);
 				for (var iB = 0; iB <= bC ; iB++) {
+					G.MEM_SPLASH_BUBBLE_COUNT += 1;
 					var bR = Math.floor((Math.random() * 10) + 1);
 					var bX = Math.floor((Math.random() * 40) + - 10);
-					G.entities.push(new bubble(G.ctx, P.dX + bX, G.gY + P.dY + P.h, bR));
+					if (G.MEM_SPLASH_BUBBLE_COUNT % 2) {
+						G.entities.push(new bubble(G.ctx, P.dX + bX, G.gY + P.dY + P.h, bR));
+					} else {
+						G.entitiesFront.push(new bubble(G.ctx, P.dX + bX, G.gY + P.dY + P.h, bR));
+					}
 				}
 		}
 
@@ -280,6 +298,10 @@ var G = {
 
 		for (var mI = 0; mI <= G.entities.length - 1; mI++) {
 			G.entities[mI].update();
+		}
+
+		for (var mI = 0; mI <= G.entitiesFront.length - 1; mI++) {
+			G.entitiesFront[mI].update();
 		}
 
 		G.draw();
@@ -476,6 +498,8 @@ var fish = function (ctx, x, y) {
 				//console.log([this._draw, this.y], 'bubble.update');
 			}
 		}
+
+
 
 	},
 
