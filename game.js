@@ -90,7 +90,7 @@ var G = {
 		G.ctx.font = "bold 16px Arial";
 		G.ctx.fillText(P.MEM_HOW_DEEP, 10, 50);
 		*/
-		
+
 		if (P.MEM_DIVE_BREACH == true) {
 			/*
 			 G.ctx.fillStyle = 'black';
@@ -356,6 +356,13 @@ var G = {
 			var cBubble = G.entities[i];
 			if (cBubble.y < 600) {
 				G.entities.splice(i, 1);
+			}
+		}
+
+		for (var i = 0; i < G.entitiesFront.length - 1; i++) {
+			var cBubble = G.entitiesFront[i];
+			if (cBubble.y < 600) {
+				G.entitiesFront.splice(i, 1);
 			}
 		}
 	},
